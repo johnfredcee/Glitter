@@ -34,10 +34,15 @@ include_directories(Glitter/Headers/
                     Glitter/Vendor/glfw/include/
                     Glitter/Vendor/glm/
                     Glitter/Vendor/stb/
-                    Glitter/Vendor/imgui)
+                    Glitter/Vendor/imgui
+                    Gitter/Vendor/OpenFbx/src
+                    Glitter/Vendor/picoJson)
 
 file(GLOB VENDORS_SOURCES Glitter/Vendor/glad/src/glad.c
+                          Gitter/Vendor/OpenFbx/src/ofbx.cpp
+                          Gitter/Vendor/OpenFbx/src/miniz.c
                           Glitter/Vendor/imgui/*.cpp)
+ 
 file(GLOB PROJECT_HEADERS Glitter/Headers/*.hpp)
 file(GLOB PROJECT_SOURCES Glitter/Sources/*.cpp)
 file(GLOB PROJECT_SHADERS Glitter/Shaders/*.comp
