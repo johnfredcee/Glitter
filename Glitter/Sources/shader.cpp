@@ -7,7 +7,7 @@
 #include <memory>
 
 // Define Namespace
-namespace Mirage
+namespace Glitter
 {
     Shader & Shader::activate()
     {
@@ -15,14 +15,19 @@ namespace Mirage
         return *this;
     }
 
-    void Shader::bind(unsigned int location, float value) { glUniform1f(location, value); }
+    void Shader::bind(unsigned int location, float value) 
+    { 
+        glUniform1f(location, value); 
+    }
     void Shader::bind(unsigned int location, glm::mat4 const & matrix)
-    { glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(matrix)); }
+    { 
+        glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(matrix)); 
+    }
 
     Shader & Shader::attach(std::string const & filename)
     {
         // Load GLSL Shader Source from File
-        std::string path = PROJECT_SOURCE_DIR "/Mirage/Shaders/";
+        std::string path = PROJECT_SOURCE_DIR "/Glitter/Shaders/";
         std::ifstream fd(path + filename);
         auto src = std::string(std::istreambuf_iterator<char>(fd),
                               (std::istreambuf_iterator<char>()));

@@ -9,7 +9,7 @@
 #include <string>
 
 // Define Namespace
-namespace Mirage
+namespace Glitter
 {
     class Shader
     {

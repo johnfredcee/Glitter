@@ -8,14 +8,14 @@
 #include <stb_image.h>
 
 // Define Namespace
-namespace Mirage
+namespace Glitter
 {
     Mesh::Mesh(std::string const & filename) : Mesh()
     {
         // Load a Model from File
         Assimp::Importer loader;
         aiScene const * scene = loader.ReadFile(
-            PROJECT_SOURCE_DIR "/Mirage/Models/" + filename,
+            PROJECT_SOURCE_DIR "/Glitter/Models/" + filename,
             aiProcessPreset_TargetRealtime_MaxQuality |
             aiProcess_OptimizeGraph                   |
             aiProcess_FlipUVs);
@@ -135,7 +135,7 @@ namespace Mirage
             // Load the Texture Image from File
             aiString str; material->GetTexture(type, i, & str);
             std::string filename = str.C_Str(); int width, height, channels;
-            filename = PROJECT_SOURCE_DIR "/Mirage/Models/" + path + "/" + filename;
+            filename = PROJECT_SOURCE_DIR "/Glitter/Models/" + path + "/" + filename;
             unsigned char * image = stbi_load(filename.c_str(), & width, & height, & channels, 0);
             if (!image) fprintf(stderr, "%s %s\n", "Failed to Load Texture", filename.c_str());
 

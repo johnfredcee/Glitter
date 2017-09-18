@@ -13,7 +13,7 @@
 #include <vector>
 
 // Define Namespace
-namespace Mirage
+namespace Glitter
 {
     // Vertex Format
     struct Vertex {
