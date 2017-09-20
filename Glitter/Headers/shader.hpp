@@ -29,6 +29,9 @@ namespace Glitter
         // Wrap Calls to glUniform
         void bind(unsigned int location, float value);
         void bind(unsigned int location, glm::mat4 const & matrix);
+        void bind(unsigned int locstion, glm::vec2 const &v2);        
+        void bind(unsigned int locstion, glm::vec3 const &v3);
+            
         template<typename T> Shader & bind(std::string const & name, T&& value)
         {
             int location = glGetUniformLocation(mProgram, name.c_str());

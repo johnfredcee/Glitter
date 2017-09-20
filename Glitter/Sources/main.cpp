@@ -19,6 +19,7 @@
 #include "glitter.hpp"
 #include "texture.hpp"
 #include "buffer.hpp"
+#include "drawable.hpp"
 #include "shader.hpp"
 
 
@@ -178,14 +179,12 @@ int main(int argc, char * argv[]) {
     quad.addElement(glm::vec3{ -1.0f,  1.0f, 0.0f});
     quad.addElement(glm::vec3{  1.0f,  1.0f, 0.0f});
     quad.addElement(glm::vec3{  1.0f, -1.0f, 0.0f});
-    quad.bind();
 
     Glitter::Buffer<glm::vec2> uv(4);
     uv.addElement(glm::vec2{ 0.0f, 0.0f});
     uv.addElement(glm::vec2{ 0.0f, 1.0f});
     uv.addElement(glm::vec2{ 1.0f, 1.0f});
     uv.addElement(glm::vec2{ 1.0f, 0.0f});
-    uv.bind();
 
     glViewport(0,0, 640, 480);
 
@@ -193,6 +192,11 @@ int main(int argc, char * argv[]) {
     boring.attach("boring.vert");
     boring.attach("boring.frag");
     boring.link();
+
+    Glitter::RenderData quadDrawable;
+    quadDrawable.addBuffer(quad);
+    quadDrawable.addBuffer(uv);
+    quadDrawable.endBuffers();
 
     // Rendering Loop
     while (glfwWindowShouldClose(mWindow) == false) {
@@ -202,6 +206,14 @@ int main(int argc, char * argv[]) {
         // Background Fill Color
         glClearColor(0.25f, 0.25f, 0.25f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
+
+        boring.activate();
+        glActiveTexture(GL_TEXTURE0);
+        tex.bind(0);
+
+        quadDrawable.bind();    
+        quadDrawable.draw(GL_TRIANGLES);
+        quadDrawable.unbind();
 
         // Flip Buffers and Draw
         glfwSwapBuffers(mWindow);
