@@ -174,13 +174,18 @@ int main(int argc, char * argv[]) {
         }   
     }
 
-    Glitter::Buffer<glm::vec3> quad(4);
-    quad.addElement(glm::vec3{ -1.0f, -1.0f, 0.0f});
-    quad.addElement(glm::vec3{ -1.0f,  1.0f, 0.0f});
-    quad.addElement(glm::vec3{  1.0f,  1.0f, 0.0f});
-    quad.addElement(glm::vec3{  1.0f, -1.0f, 0.0f});
+    Glitter::Buffer<glm::vec3> quad(6);
 
-    Glitter::Buffer<glm::vec2> uv(4);
+    quad.addElement(glm::vec3{ -1.0f,   1.0f, 0.0f});
+    quad.addElement(glm::vec3{  1.0f,  -1.0f, 0.0f});
+    quad.addElement(glm::vec3{  1.0f,  -1.0f, 0.0f});
+    quad.addElement(glm::vec3{ -1.0f, -1.0f, 0.0f});
+    quad.addElement(glm::vec3{ -1.0f,   1.0f, 0.0f});
+    quad.addElement(glm::vec3{  1.0f,  -1.0f, 0.0f});
+
+    Glitter::Buffer<glm::vec2> uv(6);
+    uv.addElement(glm::vec2{ 0.0f, 1.0f});
+    uv.addElement(glm::vec2{ 1.0f, 0.0f});
     uv.addElement(glm::vec2{ 0.0f, 0.0f});
     uv.addElement(glm::vec2{ 0.0f, 1.0f});
     uv.addElement(glm::vec2{ 1.0f, 1.0f});
