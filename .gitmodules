@@ -25,3 +25,6 @@
 [submodule "Glitter/Vendor/imgui"]
 	path = Glitter/Vendor/imgui
 	url = https://github.com/ocornut/imgui.git
+[submodule "picojson"]
+	path = picojson
+	url = https://github.com/kazuho/picojson.git
