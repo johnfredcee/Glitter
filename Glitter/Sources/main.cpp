@@ -8,6 +8,16 @@
 // Standard Headers
 #include <cstdio>
 #include <cstdlib>
+//#include <map>
+//#include <memory>
+//#include <vector>
+//#include <assimp/importer.hpp>
+//#include <assimp/postprocess.h>
+//#include <assimp/scene.h>
+#include "ofbx.h"
+#include "renderable.h"
+
+ofbx::IScene* g_scene = nullptr;
 
 int main(int argc, char * argv[]) {
 
@@ -29,7 +39,29 @@ int main(int argc, char * argv[]) {
     // Create Context and Load OpenGL Functions
     glfwMakeContextCurrent(mWindow);
     gladLoadGL();
-    fprintf(stderr, "OpenGL %s\n", glGetString(GL_VERSION));
+    //Assimp::Importer assimpLoader;
+    //aiScene const * scene = assimpLoader.ReadFile("Data\\test_FBX2013_Y.fbx",
+    //                                        aiProcessPreset_TargetRealtime_MaxQuality |
+    //                                        aiProcess_OptimizeGraph                   |
+    //                                        aiProcess_FlipUVs);
+
+    //if (!scene)
+    //{
+    //    fprintf(stderr, "%s\n", assimpLoader.GetErrorString());
+    //} 
+
+	FILE* fp = fopen("Data\\test_FBX2013_Y.fbx", "rb");
+	if (fp)
+	{ 
+		fseek(fp, 0, SEEK_END);
+		long file_size = ftell(fp);
+		fseek(fp, 0, SEEK_SET);
+		auto* content = new ofbx::u8[file_size];
+		fread(content, 1, file_size, fp);
+		g_scene = ofbx::load((ofbx::u8*)content, file_size);
+		delete[] content;
+		fclose(fp);
+	}
 
     // Rendering Loop
     while (glfwWindowShouldClose(mWindow) == false) {
