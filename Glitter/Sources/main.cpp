@@ -78,7 +78,7 @@ int main(int argc, char * argv[]) {
     fprintf(stderr, "OpenGL %s\n", glGetString(GL_VERSION));
 
     // load a font
-    void *font_data = load_font("Glitter\\fonts\\SourceCodePro-Regular.ttf", &working_font);
+    void *font_data = load_font("Glitter\\fonts\\Monaco.ttf", &working_font);
     if (font_data == nullptr) {
         fprintf(stderr, "Failed to load font");
         return EXIT_FAILURE;
@@ -197,9 +197,9 @@ int main(int argc, char * argv[]) {
     quadDrawable.addBuffer(quad);
     quadDrawable.addBuffer(uv);
     quadDrawable.endBuffers();
-
-    // Rendering Loop
-    while (glfwWindowShouldClose(mWindow) == false) {
+    while (!glfwWindowShouldClose(mWindow))
+    {
+        // Rendering Loop
         if (glfwGetKey(mWindow, GLFW_KEY_ESCAPE) == GLFW_PRESS)
             glfwSetWindowShouldClose(mWindow, true);
 
