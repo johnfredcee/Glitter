@@ -25,3 +25,9 @@
 [submodule "Glitter/Vendor/imgui"]
 	path = Glitter/Vendor/imgui
 	url = https://github.com/ocornut/imgui.git
+[submodule "Glitter/Vendor/OpenFBX"]
+	path = Glitter/Vendor/OpenFBX
+	url = https://github.com/nem0/OpenFBX.git
+[submodule "Glitter/Vendor/picojson"]
+	path = Glitter/Vendor/picojson
+	url = https://github.com/kazuho/picojson.git
