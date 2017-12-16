@@ -28,3 +28,6 @@
 [submodule "picojson"]
 	path = picojson
 	url = https://github.com/kazuho/picojson.git
+[submodule "Glitter/Vendor/OpenFBX"]
+	path = Glitter/Vendor/OpenFBX
+	url = https://github.com/nem0/OpenFBX.git
