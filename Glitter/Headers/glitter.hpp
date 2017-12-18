@@ -7,10 +7,13 @@
 // #include <assimp/Importer.hpp>
 // #include <assimp/postprocess.h>
 // #include <assimp/scene.h>
+#define GLM_ENABLE_EXPERIMENTAL
 #include <btBulletDynamicsCommon.h>
 #include <glad/glad.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#include <glm/gtx/norm.hpp> 
+#include <glm-abb.hpp>
 
 // Reference: https://github.com/nothings/stb/blob/master/stb_image.h#L4
 // To use stb_image, add this in *one* C++ source file.

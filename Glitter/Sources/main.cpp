@@ -17,6 +17,8 @@
 #include "ofbx.h"
 #include "renderable.h"
 
+using AABB = CPM_GLM_AABB_NS::AABB;
+
 ofbx::IScene* g_scene = nullptr;
 
 struct FBXImporter
@@ -94,8 +96,18 @@ struct FBXImporter
 		char shader[20];
 	};
 
+	
 	struct ImportMesh
 	{
+		struct vertex 
+		{
+			glm::vec3 pos;
+			glm::vec3 normal;
+			glm::vec3 tangent;
+			glm::vec4 color;
+			glm::vec2 uv;
+		};
+
 		ImportMesh()
 		{
 		}
@@ -105,10 +117,13 @@ struct FBXImporter
 		bool import = true;
 		bool import_physics = false;
 		int lod = 0;
-		//OutputBlob vertex_data;
+		std::vector<vertex> vertices;
 		std::vector<int> indices;
 		float radius_squared;
+		AABB aabb;
 	};
+
+	using vertex = ImportMesh::vertex;
 
     const ofbx::Mesh* getAnyMeshFromBone(const ofbx::Object* node) const
 	{
@@ -241,6 +256,15 @@ struct FBXImporter
 	}
 
 
+	static int getMaterialIndex(const ofbx::Mesh& mesh, const ofbx::Material& material)
+	{
+		for (int i = 0, c = mesh.getMaterialCount(); i < c; ++i)
+		{
+			if (mesh.getMaterial(i) == &material) return i;
+		}
+		return -1;
+	}
+
 	void clearSources()
 	{
 		for (ofbx::IScene* scene : scenes) scene->destroy();
@@ -249,6 +273,138 @@ struct FBXImporter
 		materials.clear();
 		animations.clear();
 		bones.clear();
+	}
+
+	void postprocessMeshes()
+	{
+		for (int mesh_idx = 0; mesh_idx < meshes.size(); ++mesh_idx)
+		{
+			ImportMesh& import_mesh = meshes[mesh_idx];
+			import_mesh.vertices.clear();
+			import_mesh.indices.clear();
+
+			const ofbx::Mesh& mesh = *import_mesh.fbx;
+			const ofbx::Geometry* geom = import_mesh.fbx->getGeometry();
+			int vertex_count = geom->getVertexCount();
+			const ofbx::Vec3* vertices = geom->getVertices();
+			const ofbx::Vec3* normals = geom->getNormals();
+			const ofbx::Vec3* tangents = geom->getTangents();
+			const ofbx::Vec4* colors = import_vertex_colors ? geom->getColors() : nullptr;
+			const ofbx::Vec2* uvs = geom->getUVs();
+
+			glm::mat4 transform_matrix = glm::mat4x4(); 
+			glm::mat4 geometry_matrix = glm::make_mat4x4(mesh.getGeometricMatrix().m);
+			glm::mat4 global_transform = glm::make_mat4x4(mesh.getGlobalTransform().m);
+			transform_matrix = global_transform * geometry_matrix;
+			if (center_mesh) transform_matrix[3] = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
+
+			// IAllocator& allocator = app.getWorldEditor().getAllocator();
+			// OutputBlob blob(allocator);
+			// int vertex_size = getVertexSize(mesh);
+			// import_mesh.vertex_data.reserve(vertex_count * vertex_size);
+		
+			// work out skinning later
+			// Array<Skin> skinning(allocator);
+			// Skin skinning;
+			// bool is_skinned = isSkinned(mesh);
+			// if (is_skinned) fillSkinInfo(skinning, &mesh);
+
+			AABB aabb; // = {{0, 0, 0}, {0, 0, 0}};
+			float radius_squared = 0;
+
+			int material_idx = getMaterialIndex(mesh, *import_mesh.fbx_mat);
+			assert(material_idx >= 0);
+
+			// int first_subblob[256];
+			// for (int& subblob : first_subblob) subblob = -1;
+			// std::vector<int> subblobs;
+			// subblobs.reserve(vertex_count);
+
+			const int* materials = geom->getMaterials();
+			for (int i = 0; i < vertex_count; ++i)
+			{
+				if (materials && materials[i / 3] != material_idx) continue;
+
+				vertex v;
+				ofbx::Vec3 cp = vertices[i];
+				// premultiply control points here, so we can have constantly-scaled meshes without scale in bones
+				glm::vec3 pos = glm::vec3(transform_matrix * glm::vec4(cp.x * mesh_scale, cp.y * mesh_scale, cp.y * mesh_scale, 1.0f));
+				v.pos = fixOrientation(pos);
+				
+				float sq_len = glm::length2(pos);
+				radius_squared = glm::min(radius_squared, sq_len);
+
+				aabb.mMin.x = glm::min(aabb.mMin.x, pos.x);
+				aabb.mMin.y = glm::min(aabb.mMin.y, pos.y);
+				aabb.mMin.z = glm::min(aabb.mMin.z, pos.z);
+				aabb.mMax.x = glm::max(aabb.mMax.x, pos.x);
+				aabb.mMax.y = glm::max(aabb.mMax.y, pos.y);
+				aabb.mMax.z = glm::max(aabb.mMax.z, pos.z);
+
+
+				if (normals)
+				{
+					glm::vec3 normal = glm::vec3(transform_matrix * glm::vec4(normals[i].x, normals[i].y, normals[i].z, 0.0f));
+					normal = glm::normalize(normal);
+					v.normal = fixOrientation(normal);
+				} 
+
+				if (uvs)
+				{
+					v.uv = glm::vec2(uvs[i].x, uvs[i].y);
+				}
+
+				if (colors)
+				{
+					v.color = glm::vec4(colors[i].x, colors[i].y, colors[i].z, colors[i].w);
+				}
+
+				if (tangents)
+				{
+					glm::vec3 tangent = glm::vec3(transform_matrix * glm::vec4(tangents[i].x, tangents[i].y, tangents[i].z, 0.0f));
+					tangent = glm::normalize(tangent);
+					v.tangent = fixOrientation(tangent);		
+				}
+				
+				// worry about skinning later
+				//if (is_skinned) writeSkin(skinning[i], &blob);
+				import_mesh.vertices.push_back(v);
+				import_mesh.indices.push_back(i);
+			} // for each vertex
+			import_mesh.aabb = aabb;
+			import_mesh.radius_squared = radius_squared;
+		}
+		// for (int mesh_idx = meshes.size() - 1; mesh_idx >= 0; --mesh_idx)
+		// {
+		// 	if (meshes[mesh_idx].indices.empty()) meshes.eraseFast(mesh_idx);
+		// }
+	}
+
+
+	void gatherMeshes(ofbx::IScene* scene)
+	{
+		int min_lod = 2;
+		int c = scene->getMeshCount();
+		int start_index = meshes.size();
+		for (int i = 0; i < c; ++i)
+		{
+			const ofbx::Mesh* fbx_mesh = (const ofbx::Mesh*)scene->getMesh(i);
+			if (fbx_mesh->getGeometry()->getVertexCount() == 0) continue;
+			for (int j = 0; j < fbx_mesh->getMaterialCount(); ++j)
+			{
+				ImportMesh mesh;;
+				mesh.fbx = fbx_mesh;
+				mesh.fbx_mat = fbx_mesh->getMaterial(j);
+				//esh.lod = detectMeshLOD(mesh);
+				//min_lod = min(min_lod, mesh.lod);
+				meshes.push_back(mesh);
+			}
+		}
+		if (min_lod != 1) return;
+		for (int i = start_index, n = meshes.size(); i < n; ++i)
+		{
+			--meshes[i].lod;
+		}
 	}
 
 	std::vector<ImportMaterial> materials;
