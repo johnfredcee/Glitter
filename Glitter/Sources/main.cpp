@@ -462,7 +462,7 @@ int main(int argc, char * argv[]) {
     //    fprintf(stderr, "%s\n", assimpLoader.GetErrorString());
     //} 
 
-	FILE* fp = fopen("Data\\test_FBX2013_Y.fbx", "rb");
+	FILE* fp = fopen("Data\\Fbx\\test_FBX2013_Y.fbx", "rb");
 	if (fp)
 	{ 
 		fseek(fp, 0, SEEK_END);
@@ -471,6 +471,9 @@ int main(int argc, char * argv[]) {
 		auto* content = new ofbx::u8[file_size];
 		fread(content, 1, file_size, fp);
 		g_scene = ofbx::load((ofbx::u8*)content, file_size);
+		FBXImporter importer;
+		importer.gatherMeshes(g_scene);
+		importer.postprocessMeshes();
 		delete[] content;
 		fclose(fp);
 	}
