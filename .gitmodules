@@ -31,3 +31,6 @@
 [submodule "Glitter/Vendor/picojson"]
 	path = Glitter/Vendor/picojson
 	url = https://github.com/kazuho/picojson.git
+[submodule "Glitter/Vendor/par"]
+	path = Glitter/Vendor/par
+	url = https://github.com/prideout/par.git
